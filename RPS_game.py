@@ -1,48 +1,43 @@
-import numpy as np
+import random
 import matplotlib.pyplot as plt
-from collections import Counter
-from RPS_game import play, quincy, kris, abbey, random_player
-from RPS import player  # Your AI bot
 
-def run_game_and_visualize(opponent, num_games=1000):
-    results = {'Player 1 Wins': 0, 'Player 2 Wins': 0, 'Ties': 0}
-    moves = {'R': 0, 'P': 0, 'S': 0}  # Track move choices
-    history = []
+# Determines winner of Rock, Paper, Scissors
+def rps_result(player_move, opponent_move):
+    if player_move == opponent_move:
+        return "Ties"
+    elif (player_move == "R" and opponent_move == "S") or \
+         (player_move == "S" and opponent_move == "P") or \
+         (player_move == "P" and opponent_move == "R"):
+        return "Player 1 Wins"
+    else:
+        return "Player 2 Wins"
+
+# Simulates a match between two players
+def play(player1, player2, num_games=1000):
+    results = {"Player 1 Wins": 0, "Player 2 Wins": 0, "Ties": 0}
     
-    def track_results(p1_move, p2_move, result):
-        if result == 1:
-            results['Player 1 Wins'] += 1
-        elif result == -1:
-            results['Player 2 Wins'] += 1
-        else:
-            results['Ties'] += 1
-        history.append(results['Player 1 Wins'] / len(history) if history else 0)
-        moves[p1_move] += 1
-    
-    play(player, opponent, num_games, callback=track_results)
-    
-    # Visualization
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
-    
-    # Win Percentage Bar Chart
-    ax[0].bar(results.keys(), results.values(), color=['green', 'red', 'gray'])
-    ax[0].set_title("Win Distribution")
-    
-    # Win Rate Over Time
-    ax[1].plot(history, label='Win Rate', color='blue')
-    ax[1].set_title("Win Rate Over Time")
-    ax[1].set_xlabel("Games")
-    ax[1].set_ylabel("Win %")
-    
-    # Move Distribution
-    ax[2].bar(moves.keys(), moves.values(), color=['blue', 'orange', 'purple'])
-    ax[2].set_title("Move Distribution")
-    
-    plt.show()
-    
-    print(f"Player 1 Wins: {results['Player 1 Wins'] / num_games * 100:.2f}%")
-    print(f"Player 2 Wins: {results['Player 2 Wins'] / num_games * 100:.2f}%")
-    print(f"Ties: {results['Ties'] / num_games * 100:.2f}%")
-    
-# Run visualization against an opponent
-run_game_and_visualize(quincy, 1000)
+    for _ in range(num_games):
+        move1 = player1()
+        move2 = player2()
+        result = rps_result(move1, move2)
+        results[result] += 1
+        
+    return results
+
+# AI Strategy (Example: Always plays Rock)
+def player():
+    return "R"
+
+# Opponent: Random choice bot
+def random_bot():
+    return random.choice(["R", "P", "S"])
+
+# Run the match
+results = play(player, random_bot, 1000)
+
+# Visualization
+plt.bar(results.keys(), results.values(), color=['green', 'red', 'gray'])
+plt.title("Match Results")
+plt.ylabel("Number of Games")
+plt.xlabel("Outcome")
+plt.show()
